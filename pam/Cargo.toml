@@ -1,0 +1,19 @@
+[package]
+name = "except_pam"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "pam_module"
+crate-type = ["cdylib"]
+
+[dependencies.except]
+path = ".."
+
+[dependencies]
+libc = { workspace = true }
+log = { workspace = true }
+pam-sys = { workspace = true }
+syslog = { workspace = true }
+zbus = { workspace = true, default-features = true }
+rand = "0.8.5"

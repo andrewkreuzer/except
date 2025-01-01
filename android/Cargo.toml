@@ -1,0 +1,13 @@
+[package]
+name = "except_android"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "except"
+crate-type = ["dylib"]
+
+[dependencies]
+jni = "0.21.1"
+rand = "0.8.5"
+ring = { workspace = true }
