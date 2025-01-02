@@ -15,5 +15,5 @@ libc = { workspace = true }
 log = { workspace = true }
 pam-sys = { workspace = true }
 syslog = { workspace = true }
-zbus = { workspace = true, default-features = true }
+zbus = { workspace = true }
 rand = "0.8.5"

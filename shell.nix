@@ -7,7 +7,7 @@ let
 in
 pkgs.mkShell {
   LIBCLANG_PATH = "${pkgs.libclang.lib}/lib";
-  PKG_CONFIG_ALLOW_CROSS=1;
+  ANDROID_NDK_HOME = pkgs.androidenv.androidPkgs.ndk-bundle;
   formatter = treefmt.config.build.wrapper;
   buildInputs = with pkgs; [
     pkg-config

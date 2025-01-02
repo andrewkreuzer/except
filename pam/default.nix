@@ -6,6 +6,8 @@ rustPlatform.buildRustPackage {
     (builtins.readFile ./Cargo.toml)).package.version;
 
   src = self;
+  buildType = "release";
+  buildFeatures = [];
   buildAndTestSubdir = "pam";
   cargoLock = {
     lockFile = ../Cargo.lock;

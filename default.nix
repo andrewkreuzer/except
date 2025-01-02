@@ -10,7 +10,7 @@ rustPlatform.buildRustPackage {
     lockFile = ./Cargo.lock;
   };
 
-  buildType = "debug";
+  buildType = "release";
   buildFeatures = [];
 
   nativeBuildInputs = with pkgs; [

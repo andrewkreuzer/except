@@ -1,33 +1,14 @@
 use std::error::Error;
-use std::ffi::{CStr, CString};
-use std::os::raw::c_char;
 
 use ring::aead::{Aad, BoundKey, Nonce, NonceSequence};
 use ring::error::Unspecified;
-use std::net::TcpStream;
 use std::io::{Read, Write};
-
-#[unsafe(no_mangle)]
-#[allow(clippy::missing_safety_doc)]
-pub unsafe extern "C" fn rust_greeting(to: *const c_char) -> *mut c_char {
-    let c_str = unsafe { CStr::from_ptr(to) };
-    let recipient = match c_str.to_str() {
-        Err(_) => "there",
-        Ok(string) => string,
-    };
-
-    CString::new("Hello ".to_owned() + recipient)
-        .unwrap()
-        .into_raw()
-}
+use std::net::TcpStream;
 
 #[allow(non_snake_case)]
 pub mod android {
-    extern crate jni;
-
-    use self::jni::JNIEnv;
-    use self::jni::objects::{JClass, JString};
-    use self::jni::sys::jstring;
+    use jni::JNIEnv;
+    use jni::objects::JClass;
     use super::*;
 
     #[unsafe(no_mangle)]
@@ -38,36 +19,14 @@ pub mod android {
     ) {
         call().unwrap();
     }
-
-    #[unsafe(no_mangle)]
-    #[allow(clippy::missing_safety_doc)]
-    pub unsafe extern "C" fn Java_com_anunknownalias_persephone_core_crypto_Except_except(
-        mut env: JNIEnv,
-        _: JClass,
-        java_pattern: JString,
-    ) -> jstring {
-        let world = unsafe {
-            rust_greeting(
-                env.get_string(&java_pattern)
-                    .expect("invalid pattern string")
-                    .as_ptr(),
-            )
-        };
-        let world_ptr = unsafe { CString::from_raw(world) };
-        let output = env
-            .new_string(world_ptr.to_str().unwrap())
-            .expect("Couldn't create java string!");
-
-        **output
-    }
 }
 
 const KEY: &[u8; 32] = b"0123456789abcdef0123456789abcdef";
 const CHALLENGE_REQUESTED: u8 = 80;
 const CHALLENGE_ACCEPTED: u8 = 82;
-// const CHALLENGE_CANCELLED: u8 = 127;
 const CHALLENGE_APPROVED: u8 = 65;
 // const CHALLENGE_REJECTED: u8 = 83;
+// const CHALLENGE_CANCELLED: u8 = 127;
 const EOF: &[u8] = &[0; 4];
 const FUNC1: fn(u8, u8) -> u8 = |op: u8, x: u8| x.wrapping_mul(op);
 
@@ -93,9 +52,7 @@ pub fn call() -> Result<(), Box<dyn Error>> {
     let mut data = payload[2..].to_vec();
     let unbound_key = ring::aead::UnboundKey::new(&ring::aead::AES_256_GCM, KEY).unwrap();
     let mut opening_key = ring::aead::OpeningKey::new(unbound_key, NONCE_GEN);
-    opening_key
-        .open_in_place(Aad::empty(), &mut data)
-        .unwrap();
+    opening_key.open_in_place(Aad::empty(), &mut data).unwrap();
 
     let mut response_data: Vec<u8> = data.iter().map(|x| FUNC1(op, *x)).collect();
     let unbound_key = ring::aead::UnboundKey::new(&ring::aead::AES_256_GCM, KEY).unwrap();
